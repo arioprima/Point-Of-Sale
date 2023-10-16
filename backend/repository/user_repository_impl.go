@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/arioprima/blog_web/models/entity"
+	"time"
 )
 
 type UserRepositoryImpl struct {
@@ -215,9 +216,7 @@ func (u *UserRepositoryImpl) FindByEmail(ctx context.Context, tx *sql.Tx, email 
 
 func (u *UserRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) ([]*entity.User, error) {
 	//TODO implement me
-	SQL := "SELECT id, firstname, lastname, username," +
-		"email, role, image, created_at, updated_at" +
-		"FROM users"
+	SQL := "SELECT id, firstname, lastname, username, email, role, image, created_at, updated_at FROM users"
 
 	rows, err := tx.QueryContext(
 		ctx,
@@ -225,7 +224,6 @@ func (u *UserRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) ([]*entity
 	)
 
 	if err != nil {
-		tx.Rollback()
 		return nil, err
 	}
 
@@ -235,6 +233,8 @@ func (u *UserRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) ([]*entity
 
 	for rows.Next() {
 		user := entity.User{}
+		var createdTime []uint8
+		var updatedTime []uint8 // Menambahkan variabel untuk kolom updated_at
 		err := rows.Scan(
 			&user.ID,
 			&user.FirstName,
@@ -243,15 +243,31 @@ func (u *UserRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) ([]*entity
 			&user.Email,
 			&user.Role,
 			&user.Image,
-			&user.CreatedAt,
-			&user.UpdatedAt,
+			&createdTime,
+			&updatedTime, // Memindai kolom updated_at ke variabel updatedTime
 		)
 
 		if err != nil {
 			return nil, err
 		}
 
+		// Konversi createdTime dan updatedTime ke tipe data time.Time
+		createdTimeStr := string(createdTime)
+		parsedCreatedTime, err := time.Parse("2006-01-02 15:04:05", createdTimeStr)
+		if err != nil {
+			return nil, err
+		}
+		user.CreatedAt = parsedCreatedTime
+
+		updatedTimeStr := string(updatedTime)
+		parsedUpdatedTime, err := time.Parse("2006-01-02 15:04:05", updatedTimeStr)
+		if err != nil {
+			return nil, err
+		}
+		user.UpdatedAt = parsedUpdatedTime
+
 		users = append(users, &user)
+
 	}
 
 	return users, nil

@@ -9,6 +9,7 @@ import (
 	"github.com/arioprima/blog_web/repository"
 	"github.com/arioprima/blog_web/utils"
 	"github.com/go-playground/validator/v10"
+	"log"
 	"time"
 )
 
@@ -308,29 +309,26 @@ func (service *UserServiceImpl) FindAll(ctx context.Context) ([]response.UserRes
 	//TODO implement me
 	tx, err := service.DB.Begin()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	defer func() {
-		err := recover()
-		if err != nil {
+		if r := recover(); r != nil {
 			err := tx.Rollback()
 			if err != nil {
-				return
+				log.Println("Error rolling back transaction:", err)
 			}
-			panic(err)
 		} else {
 			err := tx.Commit()
 			if err != nil {
-				return
+				log.Println("Error committing transaction:", err)
 			}
 		}
 	}()
 
 	users, err := service.UserRepository.FindAll(ctx, tx)
-
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	var userResponses []response.UserResponse

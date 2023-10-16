@@ -165,6 +165,7 @@ func (controller *UserController) FindAll(ctx *gin.Context) {
 			Message: err.Error(),
 			Data:    nil,
 		})
+		return // Tambahkan pernyataan return di sini
 	}
 
 	ctx.IndentedJSON(http.StatusOK, response.Response{
