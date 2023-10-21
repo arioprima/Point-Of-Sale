@@ -3,12 +3,17 @@ package service
 import (
 	"context"
 	"database/sql"
+	"errors"
+	"fmt"
 	"github.com/arioprima/blog_web/models/entity"
 	"github.com/arioprima/blog_web/models/web/request"
 	"github.com/arioprima/blog_web/models/web/response"
 	"github.com/arioprima/blog_web/repository"
 	"github.com/arioprima/blog_web/utils"
 	"github.com/go-playground/validator/v10"
+	"github.com/joho/godotenv"
+	"log"
+	"os"
 	"time"
 )
 
@@ -22,40 +27,112 @@ func NewUserServiceImpl(userRepository repository.UserRepository, db *sql.DB, va
 	return &UserServiceImpl{UserRepository: userRepository, DB: db, Validate: validate}
 }
 
-func (service *UserServiceImpl) Create(ctx context.Context, request request.UserCreateRequest) (response.UserResponse, error) {
-	//TODO implement me
-	err := service.Validate.Struct(request)
-
-	if err != nil {
-		panic(err)
+func (service *UserServiceImpl) Login(ctx context.Context, loginRequest request.UserLoginRequest) (response.LoginResponse, error) {
+	errLoad := godotenv.Load()
+	if errLoad != nil {
+		log.Fatal("Error loading .env file")
 	}
 
 	tx, err := service.DB.Begin()
 	if err != nil {
-		panic(err)
+		return response.LoginResponse{}, err
 	}
 
 	defer func() {
-		err := recover()
-		if err != nil {
+		if r := recover(); r != nil {
 			err := tx.Rollback()
 			if err != nil {
-				return
+				log.Println("Error rolling back transaction:", err)
 			}
-			panic(err)
 		} else {
 			err := tx.Commit()
 			if err != nil {
-				return
+				log.Println("Error committing transaction:", err)
 			}
 		}
 	}()
 
-	hashedPassword, err := utils.HashPassword(request.Password)
+	user, err := service.UserRepository.FindByUserName(ctx, tx, loginRequest.UserName)
 	if err != nil {
-		panic(err)
+		return response.LoginResponse{}, err
 	}
 
+	if user == nil {
+		return response.LoginResponse{}, errors.New("user not found")
+	}
+
+	var jwtTokenSecret = []byte(os.Getenv("JWT_TOKEN_SECRET"))
+
+	jwtExpiredTimeTokenStr := os.Getenv("JWT_EXPIRED_TIME_TOKEN")
+
+	jwtExpiredTimeToken, err := time.ParseDuration(jwtExpiredTimeTokenStr)
+	if err != nil {
+		// Handle error saat parsing duration dari environment variable
+		return response.LoginResponse{}, err
+	}
+
+	tokenPayload := map[string]interface{}{
+		"id":       user.ID,
+		"username": user.UserName,
+		"role":     user.Role,
+	}
+
+	// Verify password
+	verify_error := utils.VerifyPassword(user.Password, loginRequest.Password)
+	if verify_error != nil {
+		return response.LoginResponse{}, verify_error
+	}
+
+	// Generate token
+	token, err_token := utils.GenerateToken(jwtExpiredTimeToken, tokenPayload, string(jwtTokenSecret))
+
+	if err_token != nil {
+		return response.LoginResponse{}, err_token
+	}
+
+	return response.LoginResponse{
+		ID:        user.ID,
+		UserName:  user.UserName,
+		Role:      user.Role,
+		TokenType: "Bearer",
+		Token:     token,
+	}, nil
+}
+
+func (service *UserServiceImpl) Create(ctx context.Context, request request.UserCreateRequest) (response.UserResponse, error) {
+	// Validate the request
+	if err := service.Validate.Struct(request); err != nil {
+		return response.UserResponse{}, err
+	}
+
+	// Start a transaction
+	tx, err := service.DB.Begin()
+	if err != nil {
+		return response.UserResponse{}, err
+	}
+
+	// Defer a function to handle transaction rollback or commit
+	defer func() {
+		if r := recover(); r != nil {
+			// An error occurred, rollback the transaction
+			if rollbackErr := tx.Rollback(); rollbackErr != nil {
+				log.Fatalf("Error rolling back transaction: %v", rollbackErr)
+			}
+		} else {
+			// No error, commit the transaction
+			if commitErr := tx.Commit(); commitErr != nil {
+				log.Fatalf("Error committing transaction: %v", commitErr)
+			}
+		}
+	}()
+
+	// Hash the user's password
+	hashedPassword, err := utils.HashPassword(request.Password)
+	if err != nil {
+		return response.UserResponse{}, err
+	}
+
+	// Create a user entity
 	user := &entity.User{
 		ID:        utils.GenerateUUID(),
 		FirstName: request.FirstName,
@@ -69,11 +146,29 @@ func (service *UserServiceImpl) Create(ctx context.Context, request request.User
 		UpdatedAt: time.Now(),
 	}
 
-	user, err = service.UserRepository.Create(ctx, tx, user)
-
-	if err != nil {
-		panic(err)
+	// Set a default role if it's not provided
+	if user.Role == nil {
+		role := "user"
+		user.Role = &role
 	}
+
+	// Check for empty username, email, and password
+	if user.UserName == "" {
+		return response.UserResponse{}, fmt.Errorf("error: username is empty")
+	} else if user.Email == "" {
+		return response.UserResponse{}, fmt.Errorf("error: email is empty")
+	} else if user.Password == "" {
+		return response.UserResponse{}, fmt.Errorf("error: password is empty")
+	}
+
+	// Insert the user into the database
+	user, err = service.UserRepository.Create(ctx, tx, user)
+	if err != nil {
+		return response.UserResponse{}, err
+	}
+
+	// Return the user response
+
 	return response.UserResponse{
 		ID:        user.ID,
 		FirstName: user.FirstName,
@@ -92,7 +187,8 @@ func (service *UserServiceImpl) Update(ctx context.Context, request request.User
 	err := service.Validate.Struct(request)
 
 	if err != nil {
-		panic(err)
+		// bikin json response error
+		return response.UserResponse{}, err
 	}
 
 	tx, err := service.DB.Begin()
@@ -101,25 +197,25 @@ func (service *UserServiceImpl) Update(ctx context.Context, request request.User
 	}
 
 	defer func() {
-		err := recover()
-		if err != nil {
+		if r := recover(); r != nil {
 			err := tx.Rollback()
 			if err != nil {
-				return
+				log.Println("Error rolling back transaction:", err)
 			}
 			panic(err)
 		} else {
 			err := tx.Commit()
 			if err != nil {
-				return
+				log.Println("Error committing transaction:", err)
 			}
 		}
 	}()
 
 	user, err := service.UserRepository.FindById(ctx, tx, request.ID)
 
+	// bikin kondisi jika user tidak ditemukan maka kmbalikan response error
 	if err != nil {
-		panic(err)
+		return response.UserResponse{}, err
 	}
 
 	user.FirstName = request.FirstName
@@ -130,7 +226,7 @@ func (service *UserServiceImpl) Update(ctx context.Context, request request.User
 	user, err = service.UserRepository.Update(ctx, tx, user)
 
 	if err != nil {
-		panic(err)
+		return response.UserResponse{}, err
 	}
 
 	return response.UserResponse{
@@ -180,23 +276,22 @@ func (service *UserServiceImpl) Delete(ctx context.Context, userId string) {
 
 func (service *UserServiceImpl) FindById(ctx context.Context, userId string) (response.UserResponse, error) {
 	//TODO implement me
+
 	tx, err := service.DB.Begin()
 	if err != nil {
-		panic(err)
+		return response.UserResponse{}, err
 	}
 
 	defer func() {
-		err := recover()
-		if err != nil {
+		if r := recover(); r != nil {
 			err := tx.Rollback()
 			if err != nil {
-				return
+				log.Println("Error rolling back transaction:", err)
 			}
-			panic(err)
 		} else {
 			err := tx.Commit()
 			if err != nil {
-				return
+				log.Println("Error committing transaction:", err)
 			}
 		}
 	}()
@@ -204,7 +299,13 @@ func (service *UserServiceImpl) FindById(ctx context.Context, userId string) (re
 	user, err := service.UserRepository.FindById(ctx, tx, userId)
 
 	if err != nil {
-		panic(err)
+		// Ganti penggunaan panic dengan mengembalikan kesalahan
+		return response.UserResponse{}, err
+	}
+
+	if user == nil {
+		// Pengguna tidak ditemukan
+		return response.UserResponse{}, errors.New("user not found")
 	}
 
 	return response.UserResponse{
@@ -221,24 +322,21 @@ func (service *UserServiceImpl) FindById(ctx context.Context, userId string) (re
 }
 
 func (service *UserServiceImpl) FindByUserName(ctx context.Context, username string) (response.UserResponse, error) {
-	//TODO implement me
 	tx, err := service.DB.Begin()
 	if err != nil {
-		panic(err)
+		return response.UserResponse{}, err
 	}
 
 	defer func() {
-		err := recover()
-		if err != nil {
+		if r := recover(); r != nil {
 			err := tx.Rollback()
 			if err != nil {
-				return
+				log.Println("Error rolling back transaction:", err)
 			}
-			panic(err)
 		} else {
 			err := tx.Commit()
 			if err != nil {
-				return
+				log.Println("Error committing transaction:", err)
 			}
 		}
 	}()
@@ -246,7 +344,13 @@ func (service *UserServiceImpl) FindByUserName(ctx context.Context, username str
 	user, err := service.UserRepository.FindByUserName(ctx, tx, username)
 
 	if err != nil {
-		panic(err)
+		// Ganti penggunaan panic dengan mengembalikan kesalahan
+		return response.UserResponse{}, err
+	}
+
+	if user == nil {
+		// Pengguna tidak ditemukan
+		return response.UserResponse{}, errors.New("user not found")
 	}
 
 	return response.UserResponse{
@@ -266,21 +370,19 @@ func (service *UserServiceImpl) FindByEmail(ctx context.Context, email string) (
 	//TODO implement me
 	tx, err := service.DB.Begin()
 	if err != nil {
-		panic(err)
+		return response.UserResponse{}, err
 	}
 
 	defer func() {
-		err := recover()
-		if err != nil {
+		if r := recover(); r != nil {
 			err := tx.Rollback()
 			if err != nil {
-				return
+				log.Println("Error rolling back transaction:", err)
 			}
-			panic(err)
 		} else {
 			err := tx.Commit()
 			if err != nil {
-				return
+				log.Println("Error committing transaction:", err)
 			}
 		}
 	}()
@@ -288,7 +390,13 @@ func (service *UserServiceImpl) FindByEmail(ctx context.Context, email string) (
 	user, err := service.UserRepository.FindByEmail(ctx, tx, email)
 
 	if err != nil {
-		panic(err)
+		// Ganti penggunaan panic dengan mengembalikan kesalahan
+		return response.UserResponse{}, err
+	}
+
+	if user == nil {
+		// Pengguna tidak ditemukan
+		return response.UserResponse{}, errors.New("user not found")
 	}
 
 	return response.UserResponse{
@@ -308,29 +416,26 @@ func (service *UserServiceImpl) FindAll(ctx context.Context) ([]response.UserRes
 	//TODO implement me
 	tx, err := service.DB.Begin()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	defer func() {
-		err := recover()
-		if err != nil {
+		if r := recover(); r != nil {
 			err := tx.Rollback()
 			if err != nil {
-				return
+				log.Println("Error rolling back transaction:", err)
 			}
-			panic(err)
 		} else {
 			err := tx.Commit()
 			if err != nil {
-				return
+				log.Println("Error committing transaction:", err)
 			}
 		}
 	}()
 
 	users, err := service.UserRepository.FindAll(ctx, tx)
-
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	var userResponses []response.UserResponse

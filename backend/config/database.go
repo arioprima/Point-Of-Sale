@@ -7,7 +7,7 @@ import (
 
 func ConnectionDB() *sql.DB {
 	//mysql://ubuntu:TanahDamai@123@tcp(192.168.221.97:3306)/belajar_golang_jwt
-	db, err := sql.Open("mysql", "ubuntu:TanahDamai@123@tcp(192.168.221.97:3306)/belajar_golang_jwt")
+	db, err := sql.Open("mysql", "centos:TanahDamai@123@tcp(103.127.97.105:3306)/belajar_golang_jwt")
 
 	if err != nil {
 		panic(err)
