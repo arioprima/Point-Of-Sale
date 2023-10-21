@@ -11,6 +11,7 @@ import (
 	"github.com/arioprima/blog_web/repository"
 	"github.com/arioprima/blog_web/utils"
 	"github.com/go-playground/validator/v10"
+	"github.com/joho/godotenv"
 	"log"
 	"os"
 	"time"
@@ -27,6 +28,11 @@ func NewUserServiceImpl(userRepository repository.UserRepository, db *sql.DB, va
 }
 
 func (service *UserServiceImpl) Login(ctx context.Context, loginRequest request.UserLoginRequest) (response.LoginResponse, error) {
+	errLoad := godotenv.Load()
+	if errLoad != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return response.LoginResponse{}, err
@@ -58,10 +64,6 @@ func (service *UserServiceImpl) Login(ctx context.Context, loginRequest request.
 	var jwtTokenSecret = []byte(os.Getenv("JWT_TOKEN_SECRET"))
 
 	jwtExpiredTimeTokenStr := os.Getenv("JWT_EXPIRED_TIME_TOKEN")
-	if jwtExpiredTimeTokenStr == "" {
-		// Set a default value if JWT_EXPIRED_TIME_TOKEN is empty.
-		jwtExpiredTimeTokenStr = "1h" // This is an example; you can change it to an appropriate value.
-	}
 
 	jwtExpiredTimeToken, err := time.ParseDuration(jwtExpiredTimeTokenStr)
 	if err != nil {
