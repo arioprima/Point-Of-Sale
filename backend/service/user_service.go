@@ -7,6 +7,7 @@ import (
 )
 
 type UserService interface {
+	Login(ctx context.Context, request request.UserLoginRequest) (response.LoginResponse, error)
 	Create(ctx context.Context, request request.UserCreateRequest) (response.UserResponse, error)
 	Update(ctx context.Context, request request.UserUpdateRequest) (response.UserResponse, error)
 	Delete(ctx context.Context, userId string)

@@ -16,6 +16,30 @@ func NewUserController(userService service.UserService) *UserController {
 	return &UserController{UserService: userService}
 }
 
+func (controller *UserController) Login(ctx *gin.Context) {
+	loginRequest := request.UserLoginRequest{}
+	err := ctx.ShouldBindJSON(&loginRequest)
+	if err != nil {
+		panic(err)
+	}
+
+	responses, err := controller.UserService.Login(ctx, loginRequest)
+
+	if err != nil {
+		ctx.IndentedJSON(http.StatusNotFound, response.Response{
+			Status:  http.StatusNotFound,
+			Message: err.Error(),
+			Data:    nil,
+		})
+	} else {
+		ctx.IndentedJSON(http.StatusOK, response.Response{
+			Status:  http.StatusOK,
+			Message: "Success",
+			Data:    responses,
+		})
+	}
+}
+
 func (controller *UserController) Create(ctx *gin.Context) {
 	createUserRequest := request.UserCreateRequest{}
 	err := ctx.ShouldBindJSON(&createUserRequest)
@@ -32,13 +56,14 @@ func (controller *UserController) Create(ctx *gin.Context) {
 			Message: err.Error(),
 			Data:    nil,
 		})
+	} else {
+		ctx.IndentedJSON(http.StatusCreated, response.Response{
+			Status:  http.StatusCreated,
+			Message: "Success",
+			Data:    responses,
+		})
 	}
 
-	ctx.IndentedJSON(http.StatusCreated, response.Response{
-		Status:  http.StatusCreated,
-		Message: "Success",
-		Data:    responses,
-	})
 }
 
 func (controller *UserController) Update(ctx *gin.Context) {
@@ -55,13 +80,13 @@ func (controller *UserController) Update(ctx *gin.Context) {
 			Message: err.Error(),
 			Data:    nil,
 		})
+	} else {
+		ctx.IndentedJSON(http.StatusCreated, response.Response{
+			Status:  http.StatusCreated,
+			Message: "Success",
+			Data:    responses,
+		})
 	}
-
-	ctx.IndentedJSON(http.StatusCreated, response.Response{
-		Status:  http.StatusCreated,
-		Message: "Success",
-		Data:    responses,
-	})
 }
 
 func (controller *UserController) Delete(ctx *gin.Context) {
@@ -81,26 +106,31 @@ func (controller *UserController) FindById(ctx *gin.Context) {
 
 	responses, err := controller.UserService.FindById(ctx, userId)
 	if err != nil {
+		// Menangani kesalahan dari service
 		ctx.IndentedJSON(http.StatusInternalServerError, response.Response{
 			Status:  http.StatusInternalServerError,
 			Message: err.Error(),
 			Data:    nil,
 		})
+		return
 	}
 
-	if responses.UserName == "" || responses.Email == "" {
-		ctx.IndentedJSON(http.StatusNotFound, response.Response{
-			Status:  http.StatusNotFound,
-			Message: "User not found",
+	if responses.ID == "" || responses.UserName == "" {
+		// Jika ID kosong, berarti pengguna tidak ditemukan
+		ctx.IndentedJSON(http.StatusInternalServerError, response.Response{
+			Status:  http.StatusInternalServerError,
+			Message: err.Error(),
 			Data:    nil,
 		})
+		return
 	}
 
 	ctx.IndentedJSON(http.StatusOK, response.Response{
 		Status:  http.StatusOK,
-		Message: "Get user by id success",
+		Message: "Get user by userId success",
 		Data:    responses,
 	})
+	return
 }
 
 func (controller *UserController) FindByUserName(ctx *gin.Context) {
@@ -108,19 +138,23 @@ func (controller *UserController) FindByUserName(ctx *gin.Context) {
 
 	responses, err := controller.UserService.FindByUserName(ctx, userName)
 	if err != nil {
+		// Menangani kesalahan dari service
 		ctx.IndentedJSON(http.StatusInternalServerError, response.Response{
 			Status:  http.StatusInternalServerError,
 			Message: err.Error(),
 			Data:    nil,
 		})
+		return
 	}
 
-	if responses.UserName == "" || responses.Email == "" {
-		ctx.IndentedJSON(http.StatusNotFound, response.Response{
-			Status:  http.StatusNotFound,
-			Message: "User not found",
+	if responses.ID == "" || responses.UserName == "" {
+		// Jika ID kosong, berarti pengguna tidak ditemukan
+		ctx.IndentedJSON(http.StatusInternalServerError, response.Response{
+			Status:  http.StatusInternalServerError,
+			Message: err.Error(),
 			Data:    nil,
 		})
+		return
 	}
 
 	ctx.IndentedJSON(http.StatusOK, response.Response{
@@ -128,6 +162,7 @@ func (controller *UserController) FindByUserName(ctx *gin.Context) {
 		Message: "Get user by username success",
 		Data:    responses,
 	})
+	return
 }
 
 func (controller *UserController) FindByEmail(ctx *gin.Context) {
@@ -135,19 +170,23 @@ func (controller *UserController) FindByEmail(ctx *gin.Context) {
 
 	responses, err := controller.UserService.FindByEmail(ctx, email)
 	if err != nil {
+		// Menangani kesalahan dari service
 		ctx.IndentedJSON(http.StatusInternalServerError, response.Response{
 			Status:  http.StatusInternalServerError,
 			Message: err.Error(),
 			Data:    nil,
 		})
+		return
 	}
 
-	if responses.UserName == "" || responses.Email == "" {
-		ctx.IndentedJSON(http.StatusNotFound, response.Response{
-			Status:  http.StatusNotFound,
-			Message: "User not found",
+	if responses.ID == "" || responses.UserName == "" {
+		// Jika ID kosong, berarti pengguna tidak ditemukan
+		ctx.IndentedJSON(http.StatusInternalServerError, response.Response{
+			Status:  http.StatusInternalServerError,
+			Message: err.Error(),
 			Data:    nil,
 		})
+		return
 	}
 
 	ctx.IndentedJSON(http.StatusOK, response.Response{
@@ -155,6 +194,7 @@ func (controller *UserController) FindByEmail(ctx *gin.Context) {
 		Message: "Get user by email success",
 		Data:    responses,
 	})
+	return
 }
 
 func (controller *UserController) FindAll(ctx *gin.Context) {
@@ -165,7 +205,7 @@ func (controller *UserController) FindAll(ctx *gin.Context) {
 			Message: err.Error(),
 			Data:    nil,
 		})
-		return // Tambahkan pernyataan return di sini
+		return
 	}
 
 	ctx.IndentedJSON(http.StatusOK, response.Response{

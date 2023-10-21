@@ -5,7 +5,7 @@ CREATE TABLE users (
                        username VARCHAR(255) NOT NULL UNIQUE,
                        email VARCHAR(255) NOT NULL UNIQUE,
                        password VARCHAR(255) NOT NULL,
-                       role varchar(255) DEFAULT 'user',
+                       role ENUM('admin', 'user') DEFAULT 'user',
                        image VARCHAR(255),
                        is_deleted TINYINT DEFAULT 0,
                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
