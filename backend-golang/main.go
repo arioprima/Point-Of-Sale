@@ -6,7 +6,7 @@ func main() {
 	router := gin.Default()
 
 	router.GET("/", func(ctx *gin.Context) {
-		ctx.String(200, "Hello, World!")
+		ctx.String(200, "Hello, Dunia!")
 	})
 
 	router.GET("/satu", func(ctx *gin.Context) {
