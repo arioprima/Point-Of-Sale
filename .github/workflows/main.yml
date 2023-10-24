@@ -27,7 +27,7 @@ jobs:
           script: |
             cd /var/www/api_pos/Point-Of-Sale/backend-golang
             git stash
-            git pull origin main
+            git pull origin ario
             go get .
             go build .
             sudo systemctl daemon-reload
