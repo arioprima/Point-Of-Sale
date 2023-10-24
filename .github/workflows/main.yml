@@ -2,9 +2,15 @@ name: Go CI/CD
 
 on:
   push:
-    branches: [main]
+    branches: 
+      - staging
+      - ario
+      - rizki
   pull_request:
-    branches: [main]
+    branches: 
+      - staging
+      - ario
+      - rizki
 
 jobs:
 
@@ -14,60 +20,9 @@ jobs:
       - name: Deploy using SSH
         uses: appleboy/ssh-action@master
         with:
-          host: 103.127.97.105
-          username: arioprima
-          key: |
-            -----BEGIN RSA PRIVATE KEY-----
-            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
-            -----END RSA PRIVATE KEY-----
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.PRIVATE_KEY }}
           port: 22
           script: |
             cd /var/www/api_pos/Point-Of-Sale/backend-golang
