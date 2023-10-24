@@ -2,7 +2,7 @@ name: Go CI/CD
 
 on:
   push:
-    branches: [staging]
+    branches: [main]
   pull_request:
     branches: [staging]
 
