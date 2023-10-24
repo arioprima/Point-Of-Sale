@@ -30,6 +30,6 @@ jobs:
             git checkout ario
             git pull origin ario
             go get .
-            go build .
+            go build
             sudo systemctl daemon-reload
             sudo systemctl restart goposapi.service
