@@ -5,15 +5,8 @@ import "github.com/gin-gonic/gin"
 func main() {
 	router := gin.Default()
 
-	router.GET("/", func(ctx *gin.Context) {
-		ctx.String(200, "Hello, Dunia!")
-	})
-
-	router.GET("/satu", func(ctx *gin.Context) {
-		ctx.String(200, "Hello, satu!")
-	})
-	router.GET("/dua", func(ctx *gin.Context) {
-		ctx.String(200, "Hello, udin!")
+	router.GET("/ping", func(c *gin.Context) {
+		c.String(200, "pong")
 	})
 
 	err := router.Run(":8080")
