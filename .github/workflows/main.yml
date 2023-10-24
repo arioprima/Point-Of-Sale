@@ -27,6 +27,7 @@ jobs:
           script: |
             cd /var/www/api_pos/Point-Of-Sale/backend-golang
             git stash
+            git checkout ario
             git pull origin ario
             go get .
             go build .
