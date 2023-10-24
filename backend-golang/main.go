@@ -13,7 +13,7 @@ func main() {
 		ctx.String(200, "Hello, satu!")
 	})
 	router.GET("/dua", func(ctx *gin.Context) {
-		ctx.String(200, "Hello, satu!")
+		ctx.String(200, "Hello, udin!")
 	})
 
 	err := router.Run(":8080")
