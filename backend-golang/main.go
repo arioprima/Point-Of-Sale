@@ -9,6 +9,10 @@ func main() {
 		ctx.String(200, "Hello, World!")
 	})
 
+	router.GET("/satu", func(ctx *gin.Context) {
+		ctx.String(200, "Hello, satu!")
+	})
+
 	err := router.Run(":8080")
 	if err != nil {
 		return
