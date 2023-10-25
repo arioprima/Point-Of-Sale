@@ -6,17 +6,16 @@ on:
       - staging
       - ario
       - rizki
-  pull_request:
-    branches: 
-      - staging
-      - ario
-      - rizki
 
 jobs:
 
   deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Get the branch name
+        id: branch
+        run: echo ::set-output name=branch::${{ github.ref }}
+        
       - name: Deploy using SSH
         uses: appleboy/ssh-action@master
         with:
@@ -27,8 +26,8 @@ jobs:
           script: |
             cd /var/www/pos_service_api/Point-Of-Sale/backend-golang
             git stash
-            git checkout ario
-            git pull origin ario
+            git checkout ${{ steps.branch.outputs.branch }}
+            git pull origin ${{ steps.branch.outputs.branch }}
             go get .
             go build
             sudo systemctl daemon-reload
