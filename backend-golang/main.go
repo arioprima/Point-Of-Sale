@@ -12,6 +12,10 @@ func main() {
 		c.String(200, "push")
 	})
 
+	router.GET("/test", func(c *gin.Context) {
+		c.String(200, "test")
+	})
+
 	err := router.Run(":8080")
 	if err != nil {
 		return
