@@ -6,6 +6,6 @@ type UserCreateRequest struct {
 	UserName  string  `json:"username" validate:"required,min=2,max=20"`
 	Email     string  `json:"email" validate:"required,email"`
 	Password  string  `json:"password" validate:"required,min=4,max=20"`
-	Role      *string `json:"role"`
-	Image     *string `json:"image"`
+	UserRole  *string `json:"role"`
+	UserImage *string `json:"image"`
 }

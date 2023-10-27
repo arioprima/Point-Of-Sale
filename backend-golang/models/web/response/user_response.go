@@ -8,8 +8,8 @@ type UserResponse struct {
 	LastName  *string   `json:"lastname"`
 	UserName  string    `json:"username"`
 	Email     string    `json:"email"`
-	Role      *string   `json:"role"`
-	Image     *string   `json:"image"`
+	UserRole  *string   `json:"role"`
+	UserImage *string   `json:"image"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }

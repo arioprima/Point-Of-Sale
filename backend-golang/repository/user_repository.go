@@ -12,7 +12,7 @@ type UserRepository interface {
 	Login(ctx context.Context, tx *sql.Tx, username string) (*entity.User, error)
 	Create(ctx context.Context, tx *sql.Tx, user *entity.User) (*entity.User, error)
 	Update(ctx context.Context, tx *sql.Tx, user *entity.User) (*entity.User, error)
-	Delete(ctx context.Context, tx *sql.Tx, user *entity.User) (*entity.User, error)
+	Delete(ctx context.Context, tx *sql.Tx, userId string) error
 	FindById(ctx context.Context, tx *sql.Tx, userId string) (*entity.User, error)
 	FindByUserName(ctx context.Context, tx *sql.Tx, username string) (*entity.User, error)
 	FindByEmail(ctx context.Context, tx *sql.Tx, email string) (*entity.User, error)
@@ -28,16 +28,10 @@ func NewUserRepositoryImpl(db *sql.DB) UserRepository {
 }
 
 func (u *UserRepositoryImpl) Login(ctx context.Context, tx *sql.Tx, username string) (*entity.User, error) {
-	//TODO implement me
 	SQL := "SELECT user_id, firstname, lastname, username, email, password, role, image, created_at, updated_at FROM users WHERE username = ?"
-	row := tx.QueryRowContext(
-		ctx,
-		SQL,
-		username,
-	)
+	row := tx.QueryRowContext(ctx, SQL, username)
 
-	var createdTime []uint8
-	var updatedTime []uint8
+	var createdTimeStr, updatedTimeStr string // Mengubah tipe variabel
 
 	user := entity.User{}
 	err := row.Scan(
@@ -49,8 +43,8 @@ func (u *UserRepositoryImpl) Login(ctx context.Context, tx *sql.Tx, username str
 		&user.Password,
 		&user.UserRole,
 		&user.UserImage,
-		&createdTime,
-		&updatedTime,
+		&createdTimeStr, // Mengubah variabel ini
+		&updatedTimeStr, // Mengubah variabel ini
 	)
 
 	if err != nil {
@@ -61,19 +55,16 @@ func (u *UserRepositoryImpl) Login(ctx context.Context, tx *sql.Tx, username str
 		return nil, err
 	}
 
-	createdTimeStr := string(createdTime)
-	parsedCreatedTime, err := time.Parse("2006-01-02 15:04:05", createdTimeStr)
+	// Parsing waktu dengan format "2006-01-02T15:04:05Z"
+	user.CreatedAt, err = time.Parse("2006-01-02T15:04:05Z", createdTimeStr)
 	if err != nil {
 		return nil, err
 	}
-	user.CreatedAt = parsedCreatedTime
 
-	updatedTimeStr := string(updatedTime)
-	parsedUpdatedTime, err := time.Parse("2006-01-02 15:04:05", updatedTimeStr)
+	user.UpdatedAt, err = time.Parse("2006-01-02T15:04:05Z", updatedTimeStr)
 	if err != nil {
 		return nil, err
 	}
-	user.UpdatedAt = parsedUpdatedTime
 
 	return &user, nil
 }
@@ -151,28 +142,25 @@ func (u *UserRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, user *entit
 
 }
 
-func (u *UserRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, user *entity.User) (*entity.User, error) {
+func (u *UserRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, userId string) error {
 	//TODO implement me
 	SQL := "UPDATE users set is_deleted = 1 WHERE user_id = ?"
-	_, err := tx.ExecContext(ctx, SQL, user.ID)
+	_, err := tx.ExecContext(ctx, SQL, userId)
 
 	if err != nil {
 		tx.Rollback()
-		return nil, err
+		return err
 	}
 
-	return user, nil
-
+	return nil
 }
 
 func (u *UserRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, userId string) (*entity.User, error) {
-	//TODO implement me
 	SQL := "SELECT user_id, firstname, lastname, username, email, role, image, created_at, updated_at FROM users WHERE user_id = ?"
 
 	row := tx.QueryRowContext(ctx, SQL, userId)
 
-	var createdTime []uint8
-	var updatedTime []uint8
+	var createdTimeStr, updatedTimeStr string
 
 	user := entity.User{}
 	err := row.Scan(
@@ -183,27 +171,26 @@ func (u *UserRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, userId st
 		&user.Email,
 		&user.UserRole,
 		&user.UserImage,
-		&createdTime,
-		&updatedTime,
+		&createdTimeStr,
+		&updatedTimeStr,
 	)
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			// Pengguna tidak ditemukan
+			// User not found
 			return nil, nil
 		}
 		return nil, err
 	}
 
-	createdTimeStr := string(createdTime)
-	parsedCreatedTime, err := time.Parse("2006-01-02 15:04:05", createdTimeStr)
+	// Parse the timestamps using the correct layout
+	parsedCreatedTime, err := time.Parse("2006-01-02T15:04:05Z", createdTimeStr)
 	if err != nil {
 		return nil, err
 	}
 	user.CreatedAt = parsedCreatedTime
 
-	updatedTimeStr := string(updatedTime)
-	parsedUpdatedTime, err := time.Parse("2006-01-02 15:04:05", updatedTimeStr)
+	parsedUpdatedTime, err := time.Parse("2006-01-02T15:04:05Z", updatedTimeStr)
 	if err != nil {
 		return nil, err
 	}
@@ -213,13 +200,11 @@ func (u *UserRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, userId st
 }
 
 func (u *UserRepositoryImpl) FindByUserName(ctx context.Context, tx *sql.Tx, username string) (*entity.User, error) {
-	//TODO implement me
 	SQL := "SELECT user_id, firstname, lastname, username, email, role, password, image, created_at, updated_at FROM users WHERE username = ?"
 
 	row := tx.QueryRowContext(ctx, SQL, username)
 
-	var createdTime []uint8
-	var updatedTime []uint8
+	var createdTimeStr, updatedTimeStr string
 
 	user := entity.User{}
 	err := row.Scan(
@@ -231,27 +216,26 @@ func (u *UserRepositoryImpl) FindByUserName(ctx context.Context, tx *sql.Tx, use
 		&user.UserRole,
 		&user.Password,
 		&user.UserImage,
-		&createdTime,
-		&updatedTime,
+		&createdTimeStr,
+		&updatedTimeStr,
 	)
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			// Pengguna tidak ditemukan
+			// User not found
 			return nil, nil
 		}
 		return nil, err
 	}
 
-	createdTimeStr := string(createdTime)
-	parsedCreatedTime, err := time.Parse("2006-01-02 15:04:05", createdTimeStr)
+	// Parse the timestamps using the correct layout
+	parsedCreatedTime, err := time.Parse("2006-01-02T15:04:05Z", createdTimeStr)
 	if err != nil {
 		return nil, err
 	}
 	user.CreatedAt = parsedCreatedTime
 
-	updatedTimeStr := string(updatedTime)
-	parsedUpdatedTime, err := time.Parse("2006-01-02 15:04:05", updatedTimeStr)
+	parsedUpdatedTime, err := time.Parse("2006-01-02T15:04:05Z", updatedTimeStr)
 	if err != nil {
 		return nil, err
 	}
@@ -261,13 +245,11 @@ func (u *UserRepositoryImpl) FindByUserName(ctx context.Context, tx *sql.Tx, use
 }
 
 func (u *UserRepositoryImpl) FindByEmail(ctx context.Context, tx *sql.Tx, email string) (*entity.User, error) {
-	//TODO implement me
 	SQL := "SELECT user_id, firstname, lastname, username, email, role, image, created_at, updated_at FROM users WHERE email = ?"
 
 	row := tx.QueryRowContext(ctx, SQL, email)
 
-	var createdTime []uint8
-	var updatedTime []uint8
+	var createdTimeStr, updatedTimeStr string
 
 	user := entity.User{}
 	err := row.Scan(
@@ -278,27 +260,26 @@ func (u *UserRepositoryImpl) FindByEmail(ctx context.Context, tx *sql.Tx, email 
 		&user.Email,
 		&user.UserRole,
 		&user.UserImage,
-		&createdTime,
-		&updatedTime,
+		&createdTimeStr,
+		&updatedTimeStr,
 	)
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			// Pengguna tidak ditemukan
+			// User not found
 			return nil, nil
 		}
 		return nil, err
 	}
 
-	createdTimeStr := string(createdTime)
-	parsedCreatedTime, err := time.Parse("2006-01-02 15:04:05", createdTimeStr)
+	// Parse the timestamps using the correct layout
+	parsedCreatedTime, err := time.Parse("2006-01-02T15:04:05Z", createdTimeStr)
 	if err != nil {
 		return nil, err
 	}
 	user.CreatedAt = parsedCreatedTime
 
-	updatedTimeStr := string(updatedTime)
-	parsedUpdatedTime, err := time.Parse("2006-01-02 15:04:05", updatedTimeStr)
+	parsedUpdatedTime, err := time.Parse("2006-01-02T15:04:05Z", updatedTimeStr)
 	if err != nil {
 		return nil, err
 	}
@@ -308,26 +289,19 @@ func (u *UserRepositoryImpl) FindByEmail(ctx context.Context, tx *sql.Tx, email 
 }
 
 func (u *UserRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) ([]*entity.User, error) {
-	//TODO implement me
 	SQL := "SELECT user_id, firstname, lastname, username, email, role, image, created_at, updated_at FROM users"
-
-	rows, err := tx.QueryContext(
-		ctx,
-		SQL,
-	)
-
+	rows, err := tx.QueryContext(ctx, SQL)
 	if err != nil {
 		return nil, err
 	}
-
 	defer rows.Close()
 
 	var users []*entity.User
 
 	for rows.Next() {
 		user := entity.User{}
-		var createdTime []uint8
-		var updatedTime []uint8 // Menambahkan variabel untuk kolom updated_at
+		var createdTime string
+		var updatedTime string
 		err := rows.Scan(
 			&user.ID,
 			&user.FirstName,
@@ -337,30 +311,27 @@ func (u *UserRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) ([]*entity
 			&user.UserRole,
 			&user.UserImage,
 			&createdTime,
-			&updatedTime, // Memindai kolom updated_at ke variabel updatedTime
+			&updatedTime,
 		)
 
 		if err != nil {
 			return nil, err
 		}
 
-		// Konversi createdTime dan updatedTime ke tipe data time.Time
-		createdTimeStr := string(createdTime)
-		parsedCreatedTime, err := time.Parse("2006-01-02 15:04:05", createdTimeStr)
+		// Parse the timestamps using the correct layout
+		parsedCreatedTime, err := time.Parse("2006-01-02T15:04:05Z", createdTime)
 		if err != nil {
 			return nil, err
 		}
 		user.CreatedAt = parsedCreatedTime
 
-		updatedTimeStr := string(updatedTime)
-		parsedUpdatedTime, err := time.Parse("2006-01-02 15:04:05", updatedTimeStr)
+		parsedUpdatedTime, err := time.Parse("2006-01-02T15:04:05Z", updatedTime)
 		if err != nil {
 			return nil, err
 		}
 		user.UpdatedAt = parsedUpdatedTime
 
 		users = append(users, &user)
-
 	}
 
 	return users, nil

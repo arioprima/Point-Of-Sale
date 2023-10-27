@@ -13,7 +13,7 @@ func ConnectionDB(config *Config) *sql.DB {
 		panic(err)
 	}
 
-	fmt.Println("Success co	nnect to database")
+	fmt.Println("Success connect to database")
 
 	db.SetMaxIdleConns(5)
 	db.SetMaxOpenConns(20)
