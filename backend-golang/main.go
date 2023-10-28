@@ -16,8 +16,12 @@ import (
 
 // @title Point Of Sale API Documentation
 // @version 1.0
-// @description Tag a service for point of sale using golang
+// @description Tag a service for point of sale using golang and gin framework
 
+// @securityDefinitions.apikey Bearer
+// @in header
+// @name Authorization
+// @description Type "Bearer"
 // @host localhost:8080
 // basePath: /api
 func main() {
@@ -31,7 +35,7 @@ func main() {
 	userService := service.NewUserServiceImpl(userRepository, db, validate)
 	userController := controller.NewUserController(userService)
 
-	routes := router.NewRouter(userRepository, userController)
+	routes := router.NewRouter(userRepository, userController, db)
 
 	server := &http.Server{
 		Addr:           ":" + loadConfig.ServerPort,
