@@ -24,10 +24,11 @@ jobs:
           key: ${{ secrets.PRIVATE_KEY }}
           port: 22
           script: |
-            cd /var/www/pos_service_api/Point-Of-Sale/backend-golang
+            cd /var/www/portofolio/Point-Of-Sale/backend-golang
             git stash
             git checkout ${{ steps.branch.outputs.branch }}
             git pull origin ${{ steps.branch.outputs.branch }}
+            git reset --hard origin/${{ steps.branch.outputs.branch }}
             go get .
             go build
             sudo systemctl daemon-reload
