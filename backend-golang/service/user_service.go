@@ -70,9 +70,9 @@ func (service *UserServiceImpl) Login(ctx context.Context, request request.UserL
 	setConfig, _ := config.LoadConfig(".")
 
 	tokenPayload := map[string]interface{}{
-		"id":       user.ID,
-		"username": user.UserName,
-		"role":     user.UserRole,
+		"user_id":   user.ID,
+		"username":  user.UserName,
+		"user_role": user.UserRole,
 	}
 
 	// Verify password
