@@ -102,6 +102,7 @@ func (controller *UserController) Create(ctx *gin.Context) {
 // @Param role body string true "Role"
 // @Success 200 {string} string "OK"
 // @Router /api/users/{id} [put]
+// @Security Bearer
 func (controller *UserController) Update(ctx *gin.Context) {
 	updateUserRequest := request.UserUpdateRequest{}
 	err := ctx.ShouldBindJSON(&updateUserRequest)
@@ -138,6 +139,7 @@ func (controller *UserController) Update(ctx *gin.Context) {
 // @Param role body string true "Role"
 // @Success 200 {string} string "OK"
 // @Router /api/users/{id} [put]
+// @Security Bearer
 func (controller *UserController) Delete(ctx *gin.Context) {
 	userId := ctx.Param("id")
 
@@ -162,6 +164,7 @@ func (controller *UserController) Delete(ctx *gin.Context) {
 // @Param id path string true "User ID"
 // @Success 200 {string} string "OK"
 // @Router /api/users/{id} [get]
+// @Security Bearer
 func (controller *UserController) FindById(ctx *gin.Context) {
 	userId := ctx.Param("id")
 
@@ -203,6 +206,7 @@ func (controller *UserController) FindById(ctx *gin.Context) {
 // @Param username path string true "Username"
 // @Success 200 {string} string "OK"
 // @Router /api/users/username/{username} [get]
+// @Security Bearer
 func (controller *UserController) FindByUserName(ctx *gin.Context) {
 	userName := ctx.Param("username")
 
@@ -244,6 +248,7 @@ func (controller *UserController) FindByUserName(ctx *gin.Context) {
 // @Param email path string true "Email"
 // @Success 200 {string} string "OK"
 // @Router /api/users/email/{email} [get]
+// @Security Bearer
 func (controller *UserController) FindByEmail(ctx *gin.Context) {
 	email := ctx.Param("email")
 
@@ -284,6 +289,7 @@ func (controller *UserController) FindByEmail(ctx *gin.Context) {
 // @Produce json
 // @Success 200 {string} string "OK"
 // @Router /api/users [get]
+// @Security Bearer
 func (controller *UserController) FindAll(ctx *gin.Context) {
 	responses, err := controller.UserService.FindAll(ctx)
 	if err != nil {
