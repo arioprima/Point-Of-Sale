@@ -6,7 +6,7 @@ func main() {
 	router := gin.Default()
 
 	router.GET("/", func(c *gin.Context) {
-		c.String(200, "ping pong")
+		c.String(200, "ping pong test test")
 	})
 	err := router.Run(":8080")
 	if err != nil {
