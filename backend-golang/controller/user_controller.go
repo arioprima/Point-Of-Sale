@@ -16,6 +16,15 @@ func NewUserController(userService service.UserService) *UserController {
 	return &UserController{UserService: userService}
 }
 
+// Login handles user login.
+// @Summary Login
+// @Description Logs in a user.
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param request body string true "Username and Password"
+// @Success 200 {string} string "OK"
+// @Router /api/auth/login [post]
 func (controller *UserController) Login(ctx *gin.Context) {
 	loginRequest := request.UserLoginRequest{}
 	err := ctx.ShouldBindJSON(&loginRequest)
@@ -40,6 +49,20 @@ func (controller *UserController) Login(ctx *gin.Context) {
 	}
 }
 
+// Create registers a new user.
+// @Summary Register
+// @Description Registers a new user.
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param username body string true "First Name"
+// @Param password body string true "Last Name"
+// @Param username body string true "Username"
+// @Param email body string true "Email"
+// @Param password body string true "Password"
+// @Param role body string true "Role"
+// @Success 201 {string} string "Created"
+// @Router /api/auth/register [post]
 func (controller *UserController) Create(ctx *gin.Context) {
 	createUserRequest := request.UserCreateRequest{}
 	err := ctx.ShouldBindJSON(&createUserRequest)
@@ -66,6 +89,19 @@ func (controller *UserController) Create(ctx *gin.Context) {
 
 }
 
+// Update modifies user information.
+// @Summary Update
+// @Description Updates user information.
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
+// @Param username body string true "Username"
+// @Param email body string true "Email"
+// @Param password body string true "Password"
+// @Param role body string true "Role"
+// @Success 200 {string} string "OK"
+// @Router /api/users/{id} [put]
 func (controller *UserController) Update(ctx *gin.Context) {
 	updateUserRequest := request.UserUpdateRequest{}
 	err := ctx.ShouldBindJSON(&updateUserRequest)
@@ -89,6 +125,19 @@ func (controller *UserController) Update(ctx *gin.Context) {
 	}
 }
 
+// Update modifies user information.
+// @Summary Update
+// @Description Updates user information.
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
+// @Param username body string true "Username"
+// @Param email body string true "Email"
+// @Param password body string true "Password"
+// @Param role body string true "Role"
+// @Success 200 {string} string "OK"
+// @Router /api/users/{id} [put]
 func (controller *UserController) Delete(ctx *gin.Context) {
 	userId := ctx.Param("id")
 
@@ -104,6 +153,15 @@ func (controller *UserController) Delete(ctx *gin.Context) {
 	})
 }
 
+// FindById retrieves user by ID.
+// @Summary Find By Id
+// @Description Finds a user by ID.
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
+// @Success 200 {string} string "OK"
+// @Router /api/users/{id} [get]
 func (controller *UserController) FindById(ctx *gin.Context) {
 	userId := ctx.Param("id")
 
@@ -136,6 +194,15 @@ func (controller *UserController) FindById(ctx *gin.Context) {
 	return
 }
 
+// FindByUserName retrieves user by username.
+// @Summary Find By Username
+// @Description Finds a user by username.
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param username path string true "Username"
+// @Success 200 {string} string "OK"
+// @Router /api/users/username/{username} [get]
 func (controller *UserController) FindByUserName(ctx *gin.Context) {
 	userName := ctx.Param("username")
 
@@ -168,6 +235,15 @@ func (controller *UserController) FindByUserName(ctx *gin.Context) {
 	return
 }
 
+// FindByEmail retrieves user by email.
+// @Summary Find By Email
+// @Description Finds a user by email.
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param email path string true "Email"
+// @Success 200 {string} string "OK"
+// @Router /api/users/email/{email} [get]
 func (controller *UserController) FindByEmail(ctx *gin.Context) {
 	email := ctx.Param("email")
 
@@ -200,6 +276,14 @@ func (controller *UserController) FindByEmail(ctx *gin.Context) {
 	return
 }
 
+// FindAll retrieves all users.
+// @Summary Find All
+// @Description Retrieves all users.
+// @Tags User
+// @Accept json
+// @Produce json
+// @Success 200 {string} string "OK"
+// @Router /api/users [get]
 func (controller *UserController) FindAll(ctx *gin.Context) {
 	responses, err := controller.UserService.FindAll(ctx)
 	if err != nil {

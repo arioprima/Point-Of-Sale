@@ -3,17 +3,24 @@ package main
 import (
 	"github.com/arioprima/Point-Of-Sale/config"
 	"github.com/arioprima/Point-Of-Sale/controller"
+	_ "github.com/arioprima/Point-Of-Sale/docs"
 	"github.com/arioprima/Point-Of-Sale/repository"
+	"github.com/arioprima/Point-Of-Sale/router"
 	"github.com/arioprima/Point-Of-Sale/service"
-	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
+	"net/http"
+	"time"
 )
 
-func main() {
-	router := gin.Default()
+// @title Point Of Sale API Documentation
+// @version 1.0
+// @description Tag a service for point of sale using golang
 
+// @host localhost:8080
+// basePath: /api
+func main() {
 	loadConfig, err := config.LoadConfig(".")
 	if err != nil {
 		log.Fatal("🚀 Could not load environment variables", err)
@@ -24,17 +31,19 @@ func main() {
 	userService := service.NewUserServiceImpl(userRepository, db, validate)
 	userController := controller.NewUserController(userService)
 
-	router.POST("/login", userController.Login)
-	router.POST("/register", userController.Create)
-	router.GET("/users", userController.FindAll)
-	router.GET("/users/:id", userController.FindById)
-	router.GET("/users/username/:username", userController.FindByUserName)
-	router.GET("/users/email/:email", userController.FindByEmail)
-	router.PUT("/users/:id", userController.Update)
-	router.DELETE("/users/:id", userController.Delete)
+	routes := router.NewRouter(userRepository, userController)
 
-	err = router.Run(":8080")
-	if err != nil {
-		return
+	server := &http.Server{
+		Addr:           ":" + loadConfig.ServerPort,
+		Handler:        routes,
+		ReadTimeout:    15 * time.Second,
+		WriteTimeout:   15 * time.Second,
+		MaxHeaderBytes: 1 << 20,
+	}
+
+	err_server := server.ListenAndServe()
+
+	if err_server != nil {
+		log.Fatal("🚀 Could not start server", err_server)
 	}
 }
