@@ -55,12 +55,7 @@ func (controller *UserController) Login(ctx *gin.Context) {
 // @Tags Auth
 // @Accept json
 // @Produce json
-// @Param username body string true "First Name"
-// @Param password body string true "Last Name"
-// @Param username body string true "Username"
-// @Param email body string true "Email"
-// @Param password body string true "Password"
-// @Param role body string true "Role"
+// @Param request body string true
 // @Success 201 {string} string "Created"
 // @Router /api/auth/register [post]
 func (controller *UserController) Create(ctx *gin.Context) {
