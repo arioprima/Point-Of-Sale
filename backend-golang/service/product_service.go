@@ -19,7 +19,7 @@ type ProductService interface {
 	Delete(ctx context.Context, productId string) error
 	FindById(ctx context.Context, productId string) (response.ProductResponse, error)
 	FindByName(ctx context.Context, productName string) (response.ProductResponse, error)
-	FindAll(ctx context.Context, page int, size int) ([]response.ProductResponse, error)
+	FindAll(ctx context.Context) ([]response.ProductResponse, error)
 }
 
 type ProductServiceImpl struct {
@@ -295,7 +295,7 @@ func (product *ProductServiceImpl) FindByName(ctx context.Context, productName s
 	}, nil
 }
 
-func (product *ProductServiceImpl) FindAll(ctx context.Context, page int, size int) ([]response.ProductResponse, error) {
+func (product *ProductServiceImpl) FindAll(ctx context.Context) ([]response.ProductResponse, error) {
 	//TODO implement me
 	tx, err := product.DB.Begin()
 	if err != nil {
