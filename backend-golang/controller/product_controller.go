@@ -22,7 +22,6 @@ func NewProductController(productService service.ProductService) *ProductControl
 // @Tags Product
 // @Accept json
 // @Produce json
-// @Param request body ProductCreateRequest true "Product creation request"
 // @Success 201 {string} string "Created"
 // @Router /api/product [post]
 func (controller *ProductController) Create(ctx *gin.Context) {
@@ -56,7 +55,6 @@ func (controller *ProductController) Create(ctx *gin.Context) {
 // @Tags Product
 // @Accept json
 // @Produce json
-// @Param request body ProductUpdateRequest true "Product update request"
 // @Success 200 {string} string "OK"
 // @Router /api/product [put]
 func (controller *ProductController) Update(ctx *gin.Context) {

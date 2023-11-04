@@ -18,12 +18,12 @@ func NewUserController(userService service.UserService) *UserController {
 
 // Login handles user login.
 // @Summary Login
-// @Description Logs in a user.
+// @Description Handles user login.
 // @Tags Auth
 // @Accept json
 // @Produce json
-// @Param request body string true "Username and Password"
-// @Success 200 {string} string "OK"
+// @Success 200 {object} response.Response{}
+// @Param tags body request.UserLoginRequest true "User Login Request"
 // @Router /api/auth/login [post]
 func (controller *UserController) Login(ctx *gin.Context) {
 	loginRequest := request.UserLoginRequest{}
@@ -55,8 +55,8 @@ func (controller *UserController) Login(ctx *gin.Context) {
 // @Tags Auth
 // @Accept json
 // @Produce json
-// @Param request body string true
-// @Success 201 {string} string "Created"
+// @Success 201 {object} response.Response{}
+// @Param tags body request.UserCreateRequest true "User Create Request"
 // @Router /api/auth/register [post]
 func (controller *UserController) Create(ctx *gin.Context) {
 	createUserRequest := request.UserCreateRequest{}
@@ -90,13 +90,9 @@ func (controller *UserController) Create(ctx *gin.Context) {
 // @Tags User
 // @Accept json
 // @Produce json
-// @Param id path string true "User ID"
-// @Param username body string true "Username"
-// @Param email body string true "Email"
-// @Param password body string true "Password"
-// @Param role body string true "Role"
-// @Success 200 {string} string "OK"
-// @Router /api/users/{id} [put]
+// @Param tags body request.UserUpdateRequest true "User Update Request"
+// @Success 200 {object} response.Response{}
+// @Router /api/users/update [post]
 // @Security Bearer
 func (controller *UserController) Update(ctx *gin.Context) {
 	updateUserRequest := request.UserUpdateRequest{}
@@ -121,19 +117,15 @@ func (controller *UserController) Update(ctx *gin.Context) {
 	}
 }
 
-// Update modifies user information.
-// @Summary Update
-// @Description Updates user information.
+// Delete deletes an existing user.
+// @Summary Delete
+// @Description Deletes an existing user by its ID.
 // @Tags User
 // @Accept json
 // @Produce json
-// @Param id path string true "User ID"
-// @Param username body string true "Username"
-// @Param email body string true "Email"
-// @Param password body string true "Password"
-// @Param role body string true "Role"
-// @Success 200 {string} string "OK"
-// @Router /api/users/{id} [put]
+// @Param user_id path string true "User ID to delete"
+// @Success 200 {object} response.Response{}
+// @Router /api/users/delete [post]
 // @Security Bearer
 func (controller *UserController) Delete(ctx *gin.Context) {
 	userId := ctx.Param("id")
@@ -156,8 +148,8 @@ func (controller *UserController) Delete(ctx *gin.Context) {
 // @Tags User
 // @Accept json
 // @Produce json
-// @Param id path string true "User ID"
-// @Success 200 {string} string "OK"
+// @Param user_id path string true "User ID"
+// @Success 200 {object} response.Response{}
 // @Router /api/users/{id} [get]
 // @Security Bearer
 func (controller *UserController) FindById(ctx *gin.Context) {
@@ -199,7 +191,7 @@ func (controller *UserController) FindById(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param username path string true "Username"
-// @Success 200 {string} string "OK"
+// @Success 200 {object} response.Response{}
 // @Router /api/users/username/{username} [get]
 // @Security Bearer
 func (controller *UserController) FindByUserName(ctx *gin.Context) {
@@ -241,7 +233,7 @@ func (controller *UserController) FindByUserName(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param email path string true "Email"
-// @Success 200 {string} string "OK"
+// @Success 200 {object} response.Response{}
 // @Router /api/users/email/{email} [get]
 // @Security Bearer
 func (controller *UserController) FindByEmail(ctx *gin.Context) {
@@ -282,7 +274,7 @@ func (controller *UserController) FindByEmail(ctx *gin.Context) {
 // @Tags User
 // @Accept json
 // @Produce json
-// @Success 200 {string} string "OK"
+// @Success 200 {object} response.Response{}
 // @Router /api/users [get]
 // @Security Bearer
 func (controller *UserController) FindAll(ctx *gin.Context) {

@@ -38,7 +38,7 @@ func (p *ProductRepositoryImpl) Create(ctx context.Context, tx *sql.Tx, product 
 	}
 
 	SQL := "INSERT INTO products (product_id, product_name, category_id, price, description, " +
-		"quantity, condition, image, supplier_id, date_of_arrival, expiry_date, created_at, updated_at) " +
+		"quantity, `product_condition`, image, supplier_id, date_of_arrival, expiry_date, created_at, updated_at) " +
 		"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
 	_, err = tx.ExecContext(
@@ -50,7 +50,7 @@ func (p *ProductRepositoryImpl) Create(ctx context.Context, tx *sql.Tx, product 
 		product.Price,
 		product.Description,
 		product.Quantity,
-		product.Condition,
+		product.ProductCondition,
 		product.Image,
 		product.SupplierId,
 		product.DateOfArrival,
@@ -79,7 +79,7 @@ func (p *ProductRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, product 
 	}
 
 	SQL := "UPDATE products SET product_name = ?, category_id = ?, price = ?, description = ?, " +
-		"quantity = ?, condition = ?, image = ?, supplier_id = ?, date_of_arrival = ?, expiry_date = ?, updated_at = ? " +
+		"quantity = ?, product_condition = ?, image = ?, supplier_id = ?, date_of_arrival = ?, expiry_date = ?, updated_at = ? " +
 		"WHERE product_id = ?"
 
 	_, err = tx.ExecContext(
@@ -90,7 +90,7 @@ func (p *ProductRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, product 
 		product.Price,
 		product.Description,
 		product.Quantity,
-		product.Condition,
+		product.ProductCondition,
 		product.Image,
 		product.SupplierId,
 		product.DateOfArrival,
@@ -145,7 +145,7 @@ func (p *ProductRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, produc
 	}
 
 	SQL := "SELECT products.product_id, products.product_name, products.category_id, " +
-		"products.price, products.description, products.quantity, products.condition, products.image, " +
+		"products.price, products.description, products.quantity, products.product_condition, products.image, " +
 		"products.supplier_id, products.date_of_arrival, products.expiry_date, products.created_at, products.updated_at " +
 		"category.category_name, supplier.supplier_name FROM products where product_id = ? and is_deleted = 0"
 
@@ -157,7 +157,7 @@ func (p *ProductRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, produc
 		&product.Price,
 		&product.Description,
 		&product.Quantity,
-		&product.Condition,
+		&product.ProductCondition,
 		&product.Image,
 		&product.SupplierId,
 		&product.DateOfArrival,
@@ -187,7 +187,7 @@ func (p *ProductRepositoryImpl) FindBYName(ctx context.Context, tx *sql.Tx, prod
 	}
 
 	SQL := "SELECT products.product_id, products.product_name, products.category_id, " +
-		"products.price, products.description, products.quantity, products.condition, products.image, " +
+		"products.price, products.description, products.quantity, products.product_condition, products.image, " +
 		"products.supplier_id, products.date_of_arrival, products.expiry_date, products.created_at, products.updated_at " +
 		"category.category_name, supplier.supplier_name FROM products where product_name = ? and is_deleted = 0"
 
@@ -199,7 +199,7 @@ func (p *ProductRepositoryImpl) FindBYName(ctx context.Context, tx *sql.Tx, prod
 		&product.Price,
 		&product.Description,
 		&product.Quantity,
-		&product.Condition,
+		&product.ProductCondition,
 		&product.Image,
 		&product.SupplierId,
 		&product.DateOfArrival,
@@ -230,7 +230,7 @@ func (p *ProductRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) ([]*ent
 	}
 
 	SQL := "SELECT products.product_id, products.product_name, products.category_id, " +
-		"products.price, products.description, products.quantity, products.condition, products.image, " +
+		"products.price, products.description, products.quantity, products.product_condition, products.image, " +
 		"products.supplier_id, products.date_of_arrival, products.expiry_date, products.created_at, products.updated_at " +
 		"category.category_name, supplier.supplier_name FROM products where is_deleted = 0"
 
@@ -256,7 +256,7 @@ func (p *ProductRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) ([]*ent
 			&product.Price,
 			&product.Description,
 			&product.Quantity,
-			&product.Condition,
+			&product.ProductCondition,
 			&product.Image,
 			&product.SupplierId,
 			&product.DateOfArrival,

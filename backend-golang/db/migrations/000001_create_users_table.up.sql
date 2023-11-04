@@ -1,5 +1,5 @@
 create table users (
-    user_id uuid primary key,
+    user_id varchar(36) primary key,
     firstname varchar(255) not null,
     lastname varchar(255),
     username varchar(255) not null unique,
