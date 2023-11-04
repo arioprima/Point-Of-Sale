@@ -63,19 +63,19 @@ func (product *ProductServiceImpl) Create(ctx context.Context, request request.P
 	}()
 
 	productEntity := entity.Product{
-		ProductId:     utils.GenerateUUID(),
-		ProductName:   request.ProductName,
-		CategoryId:    request.CategoryId,
-		Price:         request.Price,
-		Description:   request.Description,
-		Quantity:      request.Quantity,
-		Condition:     request.Condition,
-		Image:         request.Image,
-		SupplierId:    request.SupplierId,
-		DateOfArrival: request.DateOfArrival,
-		ExpiryDate:    request.ExpiryDate,
-		CreatedAt:     time.Now(),
-		UpdatedAt:     time.Now(),
+		ProductId:        utils.GenerateUUID(),
+		ProductName:      request.ProductName,
+		CategoryId:       request.CategoryId,
+		Price:            request.Price,
+		Description:      request.Description,
+		Quantity:         request.Quantity,
+		ProductCondition: request.ProductCondition,
+		Image:            request.Image,
+		SupplierId:       request.SupplierId,
+		DateOfArrival:    request.DateOfArrival,
+		ExpiryDate:       request.ExpiryDate,
+		CreatedAt:        time.Now(),
+		UpdatedAt:        time.Now(),
 	}
 
 	productResponse, err := product.ProductRepository.Create(ctx, tx, &productEntity)
@@ -84,18 +84,18 @@ func (product *ProductServiceImpl) Create(ctx context.Context, request request.P
 	}
 
 	return response.ProductResponse{
-		ProductId:     productResponse.ProductId,
-		ProductName:   productResponse.ProductName,
-		CategoryId:    productResponse.CategoryId,
-		Price:         productResponse.Price,
-		Description:   productResponse.Description,
-		Quantity:      productResponse.Quantity,
-		Condition:     productResponse.Condition,
-		Image:         productResponse.Image,
-		SupplierId:    productResponse.SupplierId,
-		DateOfArrival: productResponse.DateOfArrival,
-		ExpiryDate:    productResponse.ExpiryDate,
-		CreatedAt:     productResponse.CreatedAt,
+		ProductId:        productResponse.ProductId,
+		ProductName:      productResponse.ProductName,
+		CategoryId:       productResponse.CategoryId,
+		Price:            productResponse.Price,
+		Description:      productResponse.Description,
+		Quantity:         productResponse.Quantity,
+		ProductCondition: productResponse.ProductCondition,
+		Image:            productResponse.Image,
+		SupplierId:       productResponse.SupplierId,
+		DateOfArrival:    productResponse.DateOfArrival,
+		ExpiryDate:       productResponse.ExpiryDate,
+		CreatedAt:        productResponse.CreatedAt,
 	}, nil
 }
 
@@ -126,18 +126,18 @@ func (product *ProductServiceImpl) Update(ctx context.Context, request request.P
 	}()
 
 	productEntity := entity.Product{
-		ProductId:     request.ProductId,
-		ProductName:   request.ProductName,
-		CategoryId:    request.CategoryId,
-		Price:         request.Price,
-		Description:   request.Description,
-		Quantity:      request.Quantity,
-		Condition:     request.Condition,
-		Image:         request.Image,
-		SupplierId:    request.SupplierId,
-		DateOfArrival: request.DateOfArrival,
-		ExpiryDate:    request.ExpiryDate,
-		UpdatedAt:     time.Now(),
+		ProductId:        request.ProductId,
+		ProductName:      request.ProductName,
+		CategoryId:       request.CategoryId,
+		Price:            request.Price,
+		Description:      request.Description,
+		Quantity:         request.Quantity,
+		ProductCondition: request.ProductCondition,
+		Image:            request.Image,
+		SupplierId:       request.SupplierId,
+		DateOfArrival:    request.DateOfArrival,
+		ExpiryDate:       request.ExpiryDate,
+		UpdatedAt:        time.Now(),
 	}
 
 	productResponse, err := product.ProductRepository.Update(ctx, tx, &productEntity)
@@ -146,19 +146,19 @@ func (product *ProductServiceImpl) Update(ctx context.Context, request request.P
 	}
 
 	return response.ProductResponse{
-		ProductId:     productResponse.ProductId,
-		ProductName:   productResponse.ProductName,
-		CategoryId:    productResponse.CategoryId,
-		Price:         productResponse.Price,
-		Description:   productResponse.Description,
-		Quantity:      productResponse.Quantity,
-		Condition:     productResponse.Condition,
-		Image:         productResponse.Image,
-		SupplierId:    productResponse.SupplierId,
-		DateOfArrival: productResponse.DateOfArrival,
-		ExpiryDate:    productResponse.ExpiryDate,
-		CreatedAt:     productResponse.CreatedAt,
-		UpdatedAt:     productResponse.UpdatedAt,
+		ProductId:        productResponse.ProductId,
+		ProductName:      productResponse.ProductName,
+		CategoryId:       productResponse.CategoryId,
+		Price:            productResponse.Price,
+		Description:      productResponse.Description,
+		Quantity:         productResponse.Quantity,
+		ProductCondition: productResponse.ProductCondition,
+		Image:            productResponse.Image,
+		SupplierId:       productResponse.SupplierId,
+		DateOfArrival:    productResponse.DateOfArrival,
+		ExpiryDate:       productResponse.ExpiryDate,
+		CreatedAt:        productResponse.CreatedAt,
+		UpdatedAt:        productResponse.UpdatedAt,
 	}, nil
 
 }
@@ -231,19 +231,19 @@ func (product *ProductServiceImpl) FindById(ctx context.Context, productId strin
 	}
 
 	return response.ProductResponse{
-		ProductId:     productEntity.ProductId,
-		ProductName:   productEntity.ProductName,
-		CategoryId:    productEntity.CategoryId,
-		Price:         productEntity.Price,
-		Description:   productEntity.Description,
-		Quantity:      productEntity.Quantity,
-		Condition:     productEntity.Condition,
-		Image:         productEntity.Image,
-		SupplierId:    productEntity.SupplierId,
-		DateOfArrival: productEntity.DateOfArrival,
-		ExpiryDate:    productEntity.ExpiryDate,
-		CreatedAt:     productEntity.CreatedAt,
-		UpdatedAt:     productEntity.UpdatedAt,
+		ProductId:        productEntity.ProductId,
+		ProductName:      productEntity.ProductName,
+		CategoryId:       productEntity.CategoryId,
+		Price:            productEntity.Price,
+		Description:      productEntity.Description,
+		Quantity:         productEntity.Quantity,
+		ProductCondition: productEntity.ProductCondition,
+		Image:            productEntity.Image,
+		SupplierId:       productEntity.SupplierId,
+		DateOfArrival:    productEntity.DateOfArrival,
+		ExpiryDate:       productEntity.ExpiryDate,
+		CreatedAt:        productEntity.CreatedAt,
+		UpdatedAt:        productEntity.UpdatedAt,
 	}, nil
 }
 
@@ -279,19 +279,19 @@ func (product *ProductServiceImpl) FindByName(ctx context.Context, productName s
 	}
 
 	return response.ProductResponse{
-		ProductId:     productEntity.ProductId,
-		ProductName:   productEntity.ProductName,
-		CategoryId:    productEntity.CategoryId,
-		Price:         productEntity.Price,
-		Description:   productEntity.Description,
-		Quantity:      productEntity.Quantity,
-		Condition:     productEntity.Condition,
-		Image:         productEntity.Image,
-		SupplierId:    productEntity.SupplierId,
-		DateOfArrival: productEntity.DateOfArrival,
-		ExpiryDate:    productEntity.ExpiryDate,
-		CreatedAt:     productEntity.CreatedAt,
-		UpdatedAt:     productEntity.UpdatedAt,
+		ProductId:        productEntity.ProductId,
+		ProductName:      productEntity.ProductName,
+		CategoryId:       productEntity.CategoryId,
+		Price:            productEntity.Price,
+		Description:      productEntity.Description,
+		Quantity:         productEntity.Quantity,
+		ProductCondition: productEntity.ProductCondition,
+		Image:            productEntity.Image,
+		SupplierId:       productEntity.SupplierId,
+		DateOfArrival:    productEntity.DateOfArrival,
+		ExpiryDate:       productEntity.ExpiryDate,
+		CreatedAt:        productEntity.CreatedAt,
+		UpdatedAt:        productEntity.UpdatedAt,
 	}, nil
 }
 
@@ -325,19 +325,19 @@ func (product *ProductServiceImpl) FindAll(ctx context.Context) ([]response.Prod
 
 	for _, product := range productEntity {
 		productResponse = append(productResponse, response.ProductResponse{
-			ProductId:     product.ProductId,
-			ProductName:   product.ProductName,
-			CategoryId:    product.CategoryId,
-			Price:         product.Price,
-			Description:   product.Description,
-			Quantity:      product.Quantity,
-			Condition:     product.Condition,
-			Image:         product.Image,
-			SupplierId:    product.SupplierId,
-			DateOfArrival: product.DateOfArrival,
-			ExpiryDate:    product.ExpiryDate,
-			CreatedAt:     product.CreatedAt,
-			UpdatedAt:     product.UpdatedAt,
+			ProductId:        product.ProductId,
+			ProductName:      product.ProductName,
+			CategoryId:       product.CategoryId,
+			Price:            product.Price,
+			Description:      product.Description,
+			Quantity:         product.Quantity,
+			ProductCondition: product.ProductCondition,
+			Image:            product.Image,
+			SupplierId:       product.SupplierId,
+			DateOfArrival:    product.DateOfArrival,
+			ExpiryDate:       product.ExpiryDate,
+			CreatedAt:        product.CreatedAt,
+			UpdatedAt:        product.UpdatedAt,
 		})
 	}
 	return productResponse, nil

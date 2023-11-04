@@ -1,16 +1,15 @@
 package middleware
 
 import (
-	"database/sql"
 	"github.com/arioprima/Point-Of-Sale/config"
-	"github.com/arioprima/Point-Of-Sale/repository"
 	"github.com/arioprima/Point-Of-Sale/utils"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"
 )
 
-func UserHandler(userRepository repository.UserRepository, db *sql.DB, requiredRole string) gin.HandlerFunc {
+// AuthMiddleware adalah middleware untuk mengautentikasi dan mengotorisasi pengguna berdasarkan peran.
+func AuthMiddleware(requiredRole string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var token string
 		authorizationHeader := ctx.Request.Header.Get("Authorization")
@@ -51,51 +50,36 @@ func UserHandler(userRepository repository.UserRepository, db *sql.DB, requiredR
 
 		// Access the properties within "sub"
 		userID, userIDOk := subObj["user_id"].(string)
-
-		// berdasarkan roke
 		userRole, userRoleOk := subObj["user_role"].(string)
 
-		//check error for userIDOk && userRoleOk
-
-		/* ini kode untuk cari error
-		log.Println("sub", sub)
-		log.Println("user_id", userIDOk)
-		log.Println("user_role", userRoleOk)
-		*/
-
-		if !userIDOk && !userRoleOk {
+		if !userIDOk || !userRoleOk {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"status": "fail", "message": "Token sub is missing required properties"})
 			return
 		}
 
-		//role harus admin
-		if (requiredRole == "admin" && userRole != "admin") ||
-			(requiredRole == "staff" && userRole != "admin" && userRole != "staff") ||
-			(requiredRole == "employee" && userRole != "admin" && userRole != "staff" && userRole != "employee") {
+		// Check user role and authorization
+		if !checkAuthorization(userRole, requiredRole) {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"status": "fail", "message": "You are not authorized"})
 			return
 		}
 
-		if userRepository == nil {
-			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": "fail", "message": "User repository is nil"})
-			return
-		}
+		// Set user information in the context
+		ctx.Set("currentUser", userID)
 
-		// Begin a new transaction
-		tx, err := db.Begin()
-		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": "fail", "message": "Error starting a transaction"})
-			return
-		}
-
-		// Handle the error returned by FindByUserName
-		result, err := userRepository.FindById(ctx, tx, userID)
-		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"status": "fail", "message": err.Error()})
-			return
-		}
-
-		ctx.Set("currentUser", result.ID)
+		// Continue with the request
 		ctx.Next()
+	}
+}
+
+func checkAuthorization(userRole, requiredRole string) bool {
+	switch requiredRole {
+	case "admin":
+		return userRole == "admin"
+	case "staff":
+		return userRole == "admin" || userRole == "staff"
+	case "employee":
+		return userRole == "admin" || userRole == "staff" || userRole == "employee"
+	default:
+		return false
 	}
 }

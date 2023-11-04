@@ -1,3 +1,4 @@
+// main.go
 package main
 
 import (
@@ -14,28 +15,25 @@ import (
 	"time"
 )
 
-// @title Point Of Sale API Documentation
-// @version 1.0
-// @description Tag a service for point of sale using golang and gin framework
-
-// @securityDefinitions.apikey Bearer
-// @in header
-// @name Authorization
-// @description Type "Bearer"
-// @host localhost:8080
-// basePath: /api
 func main() {
 	loadConfig, err := config.LoadConfig(".")
 	if err != nil {
-		log.Fatal("🚀 Could not load environment variables", err)
+		log.Fatalf("Could not load environment variables: %v", err)
 	}
+
 	db := config.ConnectionDB(&loadConfig)
+	defer db.Close()
+
 	validate := validator.New()
 	userRepository := repository.NewUserRepositoryImpl(db)
 	userService := service.NewUserServiceImpl(userRepository, db, validate)
 	userController := controller.NewUserController(userService)
 
-	routes := router.NewRouter(userRepository, userController, db)
+	productRepository := repository.NewProductRepositoryImpl(db)
+	productService := service.NewProductServiceImpl(productRepository, db, validate)
+	productController := controller.NewProductController(productService)
+
+	routes := router.SetupRouter(userController, productController, db, &loadConfig)
 
 	server := &http.Server{
 		Addr:           ":" + loadConfig.ServerPort,
@@ -45,9 +43,8 @@ func main() {
 		MaxHeaderBytes: 1 << 20,
 	}
 
-	err_server := server.ListenAndServe()
-
-	if err_server != nil {
-		log.Fatal("🚀 Could not start server", err_server)
+	log.Printf("Server is running on :%s\n", loadConfig.ServerPort)
+	if err_server := server.ListenAndServe(); err_server != nil {
+		log.Fatalf("Could not start server: %v", err_server)
 	}
 }
