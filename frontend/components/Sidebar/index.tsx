@@ -274,7 +274,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               {/* <!-- Menu Item Calendar --> */}
 
               {/* <!-- Menu Item Profile --> */}
-              <li>
+              {/* <li>
                 <Link
                   href="/profile"
                   className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium   duration-300 ease-in-out hover:bg-blue-200 dark:hover:bg-blue-600 ${
@@ -300,7 +300,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   </svg>
                   Profile
                 </Link>
-              </li>
+              </li> */}
               {/* <!-- Menu Item Profile --> */}
 
               {/* <!-- Menu Item Forms --> */}
@@ -451,7 +451,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               {/* <!-- Menu Item Tables --> */}
 
               {/* <!-- Menu Item Settings --> */}
-              <li>
+              {/* <li>
                 <Link
                   href="/settings"
                   className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium   duration-300 ease-in-out hover:bg-blue-200 dark:hover:bg-blue-600 ${
@@ -490,7 +490,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   </svg>
                   Settings
                 </Link>
-              </li>
+              </li> */}
               {/* <!-- Menu Item Settings --> */}
             </ul>
           </div>
