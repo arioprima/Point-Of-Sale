@@ -2,6 +2,6 @@
   "/selling/page": "app/selling/page.js",
   "/forms/form-elements/page": "app/forms/form-elements/page.js",
   "/forms/form-layout/page": "app/forms/form-layout/page.js",
-  "/ui/alerts/page": "app/ui/alerts/page.js",
-  "/ui/buttons/page": "app/ui/buttons/page.js"
+  "/ui/buttons/page": "app/ui/buttons/page.js",
+  "/ui/alerts/page": "app/ui/alerts/page.js"
 }
