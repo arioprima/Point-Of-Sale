@@ -1,5 +1,7 @@
 {
-  "/page": "app/page.js",
-  "/profile/page": "app/profile/page.js",
-  "/inventory/page": "app/inventory/page.js"
+  "/selling/page": "app/selling/page.js",
+  "/forms/form-elements/page": "app/forms/form-elements/page.js",
+  "/forms/form-layout/page": "app/forms/form-layout/page.js",
+  "/ui/buttons/page": "app/ui/buttons/page.js",
+  "/ui/alerts/page": "app/ui/alerts/page.js"
 }

@@ -1,4 +1,13 @@
 node_modules/
 *.log
-.next
+.next/
 .next/cache/
+.next/server/
+.next/build-manifest.json
+.next/prerender-manifest.json
+.next/webpack/
+dist/
+out/
+build/
+public/
+```
