@@ -33,7 +33,14 @@ func main() {
 	productService := service.NewProductServiceImpl(productRepository, db, validate)
 	productController := controller.NewProductController(productService)
 
-	routes := router.SetupRouter(userController, productController, db, &loadConfig)
+	routerConfig := router.RouterConfig{
+		UserController:    userController,
+		ProductController: productController,
+		DB:                db,
+		Config:            &loadConfig,
+	}
+
+	routes := router.SetupRouter(routerConfig)
 
 	server := &http.Server{
 		Addr:           ":" + loadConfig.ServerPort,

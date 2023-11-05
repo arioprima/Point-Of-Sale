@@ -5,6 +5,7 @@ import (
 	"github.com/arioprima/Point-Of-Sale/models/web/response"
 	"github.com/arioprima/Point-Of-Sale/service"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 )
 
@@ -92,21 +93,23 @@ func (controller *ProductController) Update(ctx *gin.Context) {
 // @Success 200 {string} string "OK"
 // @Router /api/product/{product_id} [delete]
 func (controller *ProductController) Delete(ctx *gin.Context) {
-	// TODO: Implement the delete logic here
 	productId := ctx.Param("product_id")
 
 	err := controller.ProductService.Delete(ctx, productId)
+
+	log.Println("product_id", productId)
+
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, response.Response{
-			Status:  http.StatusNotFound,
-			Message: err.Error(),
-			Data:    nil,
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"status":  http.StatusNotFound,
+			"message": err.Error(),
+			"data":    nil,
 		})
 	} else {
-		ctx.JSON(http.StatusOK, response.Response{
-			Status:  http.StatusOK,
-			Message: "OK",
-			Data:    nil,
+		ctx.JSON(http.StatusOK, gin.H{
+			"status":  http.StatusOK,
+			"message": "OK",
+			"data":    "Product deleted successfully",
 		})
 	}
 }
