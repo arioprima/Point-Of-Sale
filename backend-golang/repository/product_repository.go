@@ -108,11 +108,13 @@ func (p *ProductRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, product 
 }
 
 func (p *ProductRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, productId string) error {
-	//TODO implement me
-	checkQuery := "SELECT product_id FROM products WHERE product_id = ? LIMIT 1"
-	var existingProductId string
+	// TODO: Implementasi Anda di sini
 
-	err := tx.QueryRowContext(ctx, checkQuery, productId).Scan(&existingProductId)
+	// Cek apakah produk sudah dihapus sebelumnya (is_deleted = 1)
+	checkIsDeletedQuery := "SELECT is_deleted FROM products WHERE product_id = ?"
+	var isDeleted int
+
+	err := tx.QueryRowContext(ctx, checkIsDeletedQuery, productId).Scan(&isDeleted)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return errors.New("product not found")
@@ -120,9 +122,14 @@ func (p *ProductRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, productI
 		return err
 	}
 
-	SQL := "UPDATE products set is_deleted = 1 WHERE product_id = ?"
-	_, err = tx.ExecContext(ctx, SQL, productId)
+	// Jika is_deleted sudah diatur ke 1, maka return pesan kesalahan
+	if isDeleted == 1 {
+		return errors.New("product is already deleted")
+	}
 
+	// Jika belum dihapus, jalankan perintah UPDATE
+	updateQuery := "UPDATE products SET is_deleted = 1 WHERE product_id = ?"
+	_, err = tx.ExecContext(ctx, updateQuery, productId)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -231,8 +238,11 @@ func (p *ProductRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) ([]*ent
 
 	SQL := "SELECT products.product_id, products.product_name, products.category_id, " +
 		"products.price, products.description, products.quantity, products.product_condition, products.image, " +
-		"products.supplier_id, products.date_of_arrival, products.expiry_date, products.created_at, products.updated_at " +
-		"category.category_name, supplier.supplier_name FROM products where is_deleted = 0"
+		"products.supplier_id, products.date_of_arrival, products.expiry_date, products.created_at, products.updated_at, " +
+		"category.category_name, supplier.supplier_name FROM products " +
+		"LEFT JOIN category ON products.category_id = category.category_id " +
+		"LEFT JOIN supplier ON products.supplier_id = supplier.supplier_id " +
+		"WHERE products.is_deleted = 0"
 
 	rows, err := tx.QueryContext(ctx, SQL)
 	if err != nil {
@@ -264,6 +274,7 @@ func (p *ProductRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) ([]*ent
 			&product.CreatedAt,
 			&product.UpdatedAt,
 		)
+
 		if err != nil {
 			return nil, err
 		}
