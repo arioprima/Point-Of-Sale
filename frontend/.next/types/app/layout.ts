@@ -1,4 +1,4 @@
-// File: /Users/bernard/Documents/GitHub/Point-Of-Sale/frontend/app/layout.tsx
+// File: /home/ario/ario/point-of-sale/Point-Of-Sale/frontend/app/layout.tsx
 import * as entry from '../../../app/layout.js'
 import type { ResolvingMetadata } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
